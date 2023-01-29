@@ -1,0 +1,46 @@
+version: '3.1'
+
+services:
+  rest-php-cli:
+    build: ./docker/php-cli
+    volumes:
+      - .:/var/www/html
+      
+  rest-php-fpm:
+    build: ./docker/php
+    volumes:
+      - .:/var/www/html
+
+  rest-nginx:
+    image: nginx:latest
+    ports:
+      - 8084:80
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+
+  rest-db:
+    image: mariadb:10.6
+    restart: always
+    ports:
+      - 33097:3306
+    environment:
+      MYSQL_DATABASE: rest
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: admin
+    volumes:
+      - ~/ecosystem/lib_mysql/rest-db/:/var/lib/mysql
+
+  rest-composer:
+    image: composer:latest
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+
+  rest-node-cli:
+    image: node:19
+    container_name: rest-node-cli
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
