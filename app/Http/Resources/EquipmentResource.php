@@ -15,10 +15,17 @@ class EquipmentResource extends JsonResource
      */
     public function toArray($request)
     {
-
         return [
-            'errors' => ['Ошибки'],
-            'success' => ['211'],
+            'id' => $this->equipment_id,
+            'serial_number' => $this->serial_number,
+            'desc' => $this->desc,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'equipment_type' => [
+                'id' => $this->type_id,
+                'name' => $this->type_name,
+                'mask' => $this->type_mask,
+            ]
         ];
 
         /*
@@ -27,7 +34,8 @@ class EquipmentResource extends JsonResource
         $result['errors'] = [123];
 
         foreach ($this['success'] as $item) {
-            $result['success'][] = [ 'id' => $item->equipment_id,
+            $result['success'][] = [
+                'id' => $item->equipment_id,
                 'serial_number' => $item->serial_number,
                 'desc' => $item->desc,
                 'created_at' => $item->created_at,
@@ -46,26 +54,3 @@ class EquipmentResource extends JsonResource
     }
 
 }
-
-/*
-    public function toArray($request)
-    {
-        $result = [];
-
-        foreach ($this->success as $item) {
-            $result[] = [ 'id' => $item->equipment_id,
-                'serial_number' => $item->serial_number,
-                'desc' => $item->desc,
-                'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at,
-                'equipment_type' => [
-                    'id' => $item->type_id,
-                    'name' => $item->type_name,
-                    'mask' => $item->type_mask,
-                ]
-            ];
-        }
-
-        return $result;
-    }
-*/

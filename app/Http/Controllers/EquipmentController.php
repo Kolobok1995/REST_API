@@ -9,37 +9,23 @@ use Illuminate\Routing\Controller as BaseController;
 use App\Http\Resources\EquipmentResource;
 use App\Models\Equipment;
 use Illuminate\Http\Request;
+use App\Services\EquipmentService;
 
 class EquipmentController extends BaseController
 {
+    public function __construct(EquipmentService $equipmentService) {
+        $this->service = $equipmentService;
+    }
+
     public function index(Request $request)
     {
-        $query = \DB::table('equipment as e')
-            ->select([
-                'e.id as equipment_id',
-                'e.serial_number as serial_number',
-                'e.desc as desc',
-                'e.created_at as created_at',
-                'e.updated_at as updated_at',
-                'et.id as type_id',
-                'et.name as type_name',
-                'et.mask as type_mask',
-            ])
-            ->leftJoin('equipment_types as et', 'et.id', 'e.type_id');
+        $this->service->init();
+        $this->service->searchByAttributes($request->all());
+        $this->service->executeGet();
 
-            if ($request->has('type_name')) {
-                $query = $query->where('et.name', 'like', '%' . $request->type_name . '%');
-            }
-
-            $test = [];
-            $test['data']['success'] = $query->get();
-            $test['data']['errors'] = 123;
-            return EquipmentResource::collection($test);
-            /*
-        return EquipmentResource::collection($test->success)->additional(['errors' => [
-            'key' => 'value',
-        ]]);
-        */
+        return EquipmentResource::collection(
+            $this->service->getData()
+        );
     }
     
     public function show(int $equipment) 
