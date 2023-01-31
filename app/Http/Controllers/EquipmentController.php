@@ -10,6 +10,7 @@ use App\Http\Resources\EquipmentResource;
 use App\Models\Equipment;
 use Illuminate\Http\Request;
 use App\Services\EquipmentService;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class EquipmentController extends BaseController
 {
@@ -17,10 +18,16 @@ class EquipmentController extends BaseController
         $this->service = $equipmentService;
     }
 
-    public function index(Request $request)
+    /**
+     * Отображаем список всего оборудования
+     *
+     * @param Request $request
+     * @return JsonResource
+     */
+    public function index(Request $request): JsonResource
     {
         $this->service->init();
-        $this->service->searchByAttributes($request->all());
+        $this->service->filterSearchField($request->all());
         $this->service->executeGet();
 
         return EquipmentResource::collection(
@@ -28,23 +35,33 @@ class EquipmentController extends BaseController
         );
     }
     
-    public function show(int $equipment) 
+    /**
+     * Отображает оборудование по id
+     *
+     * @param integer $equipment
+     * @return JsonResource
+     */
+    public function show(int $equipment): JsonResource
     {
-        $listEquipment = Equipment::with('equipment_type');
-        return new EquipmentResource(Equipment::findOrFail($equipment));
+        $this->service->init();
+        $this->service->executeFirstOrFail($equipment);
+
+        return new EquipmentResource(
+           $this->service->getDataObject()
+        );
     }
 
-    public function store(Request $request) 
+    /**
+     * Добавляет новое оборудование
+     *
+     * @param Request $request
+     * @return JsonResource
+     */
+    public function store(Request $request): JsonResource
     {
-        dd();
+        dd(11);
     }
     /*
-    public function show() 
-    {
-        $listEquipment = Equipment::with('equipment_type');
-        return EquipmentResource::collection(Equipment::all());
-    }
-    
     public function update() 
     {
         $listEquipment = Equipment::with('equipment_type');
