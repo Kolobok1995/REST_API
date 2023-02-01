@@ -2,9 +2,6 @@
 
 namespace App\Traits;
 
-/**
- * 
- */
 trait SearchableTrait
 {
     private array $searchFields = [];

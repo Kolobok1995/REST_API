@@ -11,6 +11,7 @@ use App\Models\Equipment;
 use Illuminate\Http\Request;
 use App\Services\EquipmentService;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Requests\EquipmentRequest;
 
 class EquipmentController extends BaseController
 {
@@ -57,9 +58,16 @@ class EquipmentController extends BaseController
      * @param Request $request
      * @return JsonResource
      */
-    public function store(Request $request): JsonResource
+    public function store(EquipmentRequest $request)
     {
-        dd(11);
+        return response()->json([
+            'errors' => [
+                $request->getErrors()
+            ], 
+            'success' => [
+                $request->getSuccess()
+            ], 
+        ]);
     }
     /*
     public function update() 
