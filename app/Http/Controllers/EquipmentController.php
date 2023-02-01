@@ -60,12 +60,30 @@ class EquipmentController extends BaseController
      */
     public function store(EquipmentRequest $request)
     {
+        $errors = $request->getErrors();
+        $success = $request->getSuccess();
+
+        foreach($success as $key=>$item) {
+
+            $equipment = new Equipment($item);
+            $equipment->type_id = $item['equipment_type_id'];
+
+            try {
+                $equipment->save();
+            } catch (\Exception $e) {
+                if ($e->getCode() == 23000) {
+                    $errors['data.' . $key . '.serial_number'] = 'Код такого оборудования уже используется';
+                    unset($success[$key]);
+                }
+            }
+        }
+
         return response()->json([
             'errors' => [
-                $request->getErrors()
+                $errors
             ], 
             'success' => [
-                $request->getSuccess()
+                $success
             ], 
         ]);
     }
