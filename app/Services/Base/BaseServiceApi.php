@@ -6,7 +6,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use stdClass;
 use Illuminate\Database\Query\Builder;
 
-
 class BaseServiceApi
 {
     protected Builder $query;
@@ -96,7 +95,7 @@ class BaseServiceApi
         }
 
         $result['data'] = $this->data;
-        
+
         return $result;
     }
 
