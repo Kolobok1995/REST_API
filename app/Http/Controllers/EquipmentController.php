@@ -69,12 +69,10 @@ class EquipmentController extends BaseController
             $equipment->type_id = $item['equipment_type_id'];
 
             try {
-                $equipment->save();
+               // $equipment->save();
             } catch (\Exception $e) {
-                if ($e->getCode() == 23000) {
-                    $errors['data.' . $key . '.serial_number'] = 'Код такого оборудования уже используется';
+                    $errors['data.' . $key . '.serial_number'] = 'Произошла непредвиденная ошибка';
                     unset($success[$key]);
-                }
             }
         }
 

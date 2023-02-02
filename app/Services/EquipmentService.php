@@ -85,15 +85,17 @@ class EquipmentService extends BaseServiceApi
     }
 
     /**
-     * Выполняет Builder::get()
+     * Выполняет список пагинации
      *
      * @return void
      */
     public function executeGet()
     {
-        $this->data = $this->query
-            ->get()
+        $equipments = $this->query
+            ->simplePaginate(10)
             ->toArray();
+
+        $this->data = $equipments['data'];
     }
     
     /**

@@ -9,7 +9,8 @@ trait RulesEquipmentRequestTrait
     private function serialNumber(array $data)
     {
         return function($attribute, $value, $fail) use ($data){
-            $index = array_search($value, array_column($data, 'serial_number'));
+            preg_match('/data.\d/', $attribute, $matches);
+            $index = preg_replace('/data./', '', $matches[0]);
             $dataItem = $data[$index];
 
             try {
