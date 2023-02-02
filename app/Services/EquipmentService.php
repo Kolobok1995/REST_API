@@ -7,12 +7,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Database\Query\Builder;
 use App\Http\Resources\EquipmentResource;
 use App\Traits\SearchableTrait;
+use App\Models\Equipment;
 
 class EquipmentService extends BaseServiceApi
 {
     use SearchableTrait;
-
-    private Builder $query;
 
     /**
      * Инициализация сервиса модели
@@ -43,7 +42,8 @@ class EquipmentService extends BaseServiceApi
                 'et.name as type_name',
                 'et.mask as type_mask',
             ])
-            ->leftJoin('equipment_types as et', 'et.id', 'e.type_id');
+            ->leftJoin('equipment_types as et', 'et.id', 'e.type_id')
+            ->whereNull('deleted_at');
     }
 
     /**
@@ -83,20 +83,6 @@ class EquipmentService extends BaseServiceApi
     {
         $this->query = $this->query->orWhere($column, $value);
     }
-
-    /**
-     * Выполняет список пагинации
-     *
-     * @return void
-     */
-    public function executeGet()
-    {
-        $equipments = $this->query
-            ->simplePaginate(10)
-            ->toArray();
-
-        $this->data = $equipments['data'];
-    }
     
     /**
      * Выполняет Builder::get()
@@ -107,10 +93,39 @@ class EquipmentService extends BaseServiceApi
      */
     public function executeFirstOrFail(int $equipmentId)
     {
-        $this->data = (array) $this->query
+        $equipment = $this->query
             ->where('e.id', $equipmentId)
             ->first();
 
-            //ToDo Exception
+        if (! $equipment) {
+            $this->errors[] =  'Товар с id = ' . $equipmentId . ' не найден';
+        }
+
+        $this->data = (array) $equipment;
+    }
+
+    /**
+     * Сохраняет новое оборудование
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function create(): void
+    {
+        $success = $this->getSuccess();
+
+        foreach($success as $key => $item) {
+            $equipment = new Equipment($item);
+            $equipment->type_id = $item['equipment_type_id'];
+
+            try {
+                $equipment->save();
+            } catch (\Exception $e) {
+                $this->errors['data.' . $key . '.serial_number'] = 'Произошла непредвиденная ошибка';
+                unset($success[$key]);
+            }
+        }
+        
+        $this->success = $success;
     }
 }

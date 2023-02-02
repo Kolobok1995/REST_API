@@ -47,8 +47,8 @@ class EquipmentController extends BaseController
         $this->service->init();
         $this->service->executeFirstOrFail($equipment);
 
-        return new EquipmentResource(
-           $this->service->getDataObject()
+        return EquipmentResource::collection(
+            $this->service->getResult()
         );
     }
 
@@ -58,50 +58,57 @@ class EquipmentController extends BaseController
      * @param Request $request
      * @return JsonResource
      */
-    public function store(EquipmentRequest $request)
+    public function store(EquipmentRequest $request): JsonResource
     {
-        $errors = $request->getErrors();
-        $success = $request->getSuccess();
+        $this->service->init();
+        $this->service->setErrors($request->getErrors());
+        $this->service->setSuccess($request->getSuccess());
+        $this->service->create();
 
-        foreach($success as $key=>$item) {
+        return EquipmentResource::collection(
+            $this->service->getResult()
+        );
+    }
+    
+    /**
+     * Сохраняет оборудование
+     *
+     * @param Request $request
+     * @param integer $equipment
+     * @return void
+     */
+    public function update(Request $request, int $equipment): JsonResource
+    {
+        $model = Equipment::where('id', $equipment)
+            ->first();
 
-            $equipment = new Equipment($item);
-            $equipment->type_id = $item['equipment_type_id'];
-
-            try {
-               // $equipment->save();
-            } catch (\Exception $e) {
-                    $errors['data.' . $key . '.serial_number'] = 'Произошла непредвиденная ошибка';
-                    unset($success[$key]);
-            }
+        if (! $model instanceof Equipment) {
+            return EquipmentResource::collection(
+                [
+                    'error' => 'id ' . $equipment . ' не найден',
+                    'data' => []
+                ]
+            );
         }
 
-        return response()->json([
-            'errors' => [
-                $errors
-            ], 
-            'success' => [
-                $success
-            ], 
-        ]);
+        $model->fill($request->all());
+        $model->save();
+
+        return new EquipmentResource($model);
     }
-    /*
-    public function update() 
+
+    /**
+     * Удаляет мягко оборудование
+     *
+     * @param integer $equipment
+     * @return void
+     */
+    public function destroy(int $equipment): JsonResource
     {
-        $listEquipment = Equipment::with('equipment_type');
-        return EquipmentResource::collection(Equipment::all());
+        if (Equipment::where('id', $equipment)->delete()) {
+            return new EquipmentResource(['Объект ' . $equipment . ' удален']);
+        }
+
+        return new EquipmentResource(['Объект ' . $equipment . ' не найден']);
     }
-    
-    public function destroy() 
-    {
-        $listEquipment = Equipment::with('equipment_type');
-        return EquipmentResource::collection(Equipment::all());
-    }
-    
-    public function edit() 
-    {
-        $listEquipment = Equipment::with('equipment_type');
-        return EquipmentResource::collection(Equipment::all());
-    }
-    */
 }

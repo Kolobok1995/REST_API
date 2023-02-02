@@ -24,26 +24,7 @@ class EquipmentRequest extends FormRequest
             ],
             
             'data.*.equipment_type_id' => [
-                function($attribute, $value, $fail) use ($data) {
-                    preg_match('/data.\d/', $attribute, $matches);
-                    $index = preg_replace('/data./', '', $matches[0]);
-
-                 //   $index = array_search($value, array_column($data, 'equipment_type_id'));
-
-                    $dataItem = $data[$index];
-
-                    $exist = \App\Models\Equipment::where('serial_number', $dataItem['serial_number'])
-                        ->where('type_id', $dataItem['equipment_type_id'])
-                        ->first();
-                        
-                    //    dd($exist);
-                    if ($exist instanceof \App\Models\Equipment) {
-                        $this->validator->errors()->add(
-                            $attribute,
-                            'Код оборудования ' . $dataItem['serial_number'] . ' уже назначен типу ' . $exist->equipmentType->name
-                        );
-                    }
-                }
+                $this->equipmentType($data)
             ],
             'data.*.serial_number' => [
                 'required'
@@ -58,7 +39,6 @@ class EquipmentRequest extends FormRequest
     {
         return [
             'data.*.equipment_type_id' => 'equipment_type_id необходимо заполнить',
-            'data.*.ss' => 'efdfsdf',
         ];
     }
 
@@ -77,9 +57,9 @@ class EquipmentRequest extends FormRequest
     {
         $data = $this->get('data');
 
-        foreach ($this->validator->errors()->getMessages() as $key=>$error) {
-            preg_match('/data.\d/', $key, $matches);
-            $index = preg_replace('/data./', '', $matches[0]);
+        foreach ($this->validator->errors()->getMessages() as $key => $error) {
+            
+            $index = $this->getIndexData($key);
             unset($data[$index]);
         }
 
