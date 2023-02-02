@@ -6,11 +6,41 @@ use App\Models\EquipmentType;
 
 trait RulesEquipmentRequestTrait
 {
+    /**
+     * Проверка типа оборудования
+     *
+     * @param array $data
+     * @return void
+     */
+    private function equipmentType(array $data)
+    {
+        return function($attribute, $value, $fail) use ($data) {
+            $index = $this->getIndexData($attribute);
+
+            $dataItem = $data[$index];
+
+            $exist = \App\Models\Equipment::where('serial_number', $dataItem['serial_number'])
+                ->where('type_id', $dataItem['equipment_type_id'])
+                ->first();
+            if ($exist instanceof \App\Models\Equipment) {
+                $this->validator->errors()->add(
+                    $attribute,
+                    'Код оборудования ' . $dataItem['serial_number'] . ' уже назначен типу ' . $exist->equipmentType->name
+                );
+            }
+        };
+    }
+
+    /**
+     * Проверка серийного номера 
+     *
+     * @param array $data
+     * @return void
+     */
     private function serialNumber(array $data)
     {
-        return function($attribute, $value, $fail) use ($data){
-            preg_match('/data.\d/', $attribute, $matches);
-            $index = preg_replace('/data./', '', $matches[0]);
+        return function($attribute, $value, $fail) use ($data) {
+            $index = $this->getIndexData($attribute);
             $dataItem = $data[$index];
 
             try {
@@ -42,5 +72,19 @@ trait RulesEquipmentRequestTrait
                 $fail($value . ' не соответствует маске: ' . $mask);
             }
         };
+    }
+
+    /**
+     * Возвращает индекс передаваемой даты
+     *
+     * @param string $key
+     * @return integer
+     */
+    protected function getIndexData(string $key): int
+    {
+        preg_match('/data.\d/', $key, $matches);
+        $index = preg_replace('/data./', '', $matches[0]);
+        
+        return $index;
     }
 }

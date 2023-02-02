@@ -13,11 +13,15 @@ class EquipmentTypeResource extends JsonResource
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
-    {
-        return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'mask' => $this->mask,
-        ];
+    {  
+        try {
+            return [
+                'id' => $this->id,
+                'name' => $this->name,
+                'mask' => $this->mask,
+            ];
+         } catch (\Exception $e) {
+            return $this->resource;
+        }
     }
 }

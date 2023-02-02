@@ -18,5 +18,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-//Route::get('/equipment', '\App\Http\Controllers\EquipmentController@actionShow');
 Route::resource('equipment', '\App\Http\Controllers\EquipmentController');
+Route::get('/equipment-type', '\App\Http\Controllers\EquipmentTypeController@index');

@@ -14,20 +14,22 @@ class EquipmentResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
-            'id' => $this->equipment_id,
-            'serial_number' => $this->serial_number,
-            'desc' => $this->desc,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'equipment_type' => [
-                'id' => $this->type_id,
-                'name' => $this->type_name,
-                'mask' => $this->type_mask,
-            ]
-        ];
-        
-        return $this->resource;
+        try {
+            return [
+                'id' => $this->equipment_id,
+                'serial_number' => $this->serial_number,
+                'desc' => $this->desc,
+                'created_at' => $this->created_at,
+                'updated_at' => $this->updated_at,
+                'equipment_type' => [
+                    'id' => $this->type_id,
+                    'name' => $this->type_name,
+                    'mask' => $this->type_mask,
+                ]
+            ];
+        } catch (\Exception $e) {
+            return $this->resource;
+        }
     }
 
 }

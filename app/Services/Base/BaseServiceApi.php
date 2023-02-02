@@ -3,11 +3,13 @@
 namespace App\Services\Base;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Database\Eloquent\Builder;
 use stdClass;
+use Illuminate\Database\Query\Builder;
 
 class BaseServiceApi
 {
+    protected Builder $query;
+
     protected array $errors = [];
     protected array $success = [];
     protected array $data = [];
@@ -24,7 +26,7 @@ class BaseServiceApi
     }
 
     /**
-     * Массив удачных экземпляров
+     * Устанавливает Массив удачных экземпляров
      *
      * @param array $success
      * @return void
@@ -32,6 +34,17 @@ class BaseServiceApi
     public function setSuccess(array $success = []): void
     {
         $this->success = $success;
+    }
+    
+    /**
+     * Возвращает Массив удачных экземпляров
+     *
+     * @param array $success
+     * @return void
+     */
+    public function getSuccess(array $success = []): array
+    {
+        return $this->success;
     }
 
     /**
@@ -73,7 +86,6 @@ class BaseServiceApi
     public function getResult(): array
     {
         $result = [];
-
         if (count($this->errors)) {
             $result['errors'] = $this->errors;
         }
@@ -82,10 +94,22 @@ class BaseServiceApi
             $result['success'] = $this->success;
         }
 
-        if (count($this->data)) {
-            $result['data'] = $this->data;
-        }
+        $result['data'] = $this->data;
 
         return $result;
+    }
+
+    /**
+     * Выполняет builder::get сохраняет data в виде списка пагинации
+     *
+     * @return void
+     */
+    public function executeGet(int $limit = 10): void
+    {
+        $equipments = $this->query
+            ->simplePaginate($limit)
+            ->toArray();
+
+        $this->data = $equipments['data'];
     }
 }
