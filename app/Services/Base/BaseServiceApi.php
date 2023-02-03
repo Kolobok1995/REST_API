@@ -69,7 +69,7 @@ class BaseServiceApi
     }
     
     /**
-     * возвращаем дату как объект
+     * возвращаем данные как объект
      *
      * @return stdClass
      */

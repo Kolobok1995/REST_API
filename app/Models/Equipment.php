@@ -17,7 +17,6 @@ class Equipment extends Model
         'desc',
     ];
     
-
     public function equipmentType()
     {
         return $this->hasOne(EquipmentType::class, 'id', 'type_id');

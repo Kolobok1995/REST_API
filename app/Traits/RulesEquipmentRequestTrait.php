@@ -16,12 +16,12 @@ trait RulesEquipmentRequestTrait
     {
         return function($attribute, $value, $fail) use ($data) {
             $index = $this->getIndexData($attribute);
-
             $dataItem = $data[$index];
 
             $exist = \App\Models\Equipment::where('serial_number', $dataItem['serial_number'])
                 ->where('type_id', $dataItem['equipment_type_id'])
                 ->first();
+
             if ($exist instanceof \App\Models\Equipment) {
                 $this->validator->errors()->add(
                     $attribute,
@@ -84,7 +84,7 @@ trait RulesEquipmentRequestTrait
     {
         preg_match('/data.\d/', $key, $matches);
         $index = preg_replace('/data./', '', $matches[0]);
-        
+
         return $index;
     }
 }
